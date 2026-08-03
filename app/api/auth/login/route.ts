@@ -74,6 +74,8 @@ export async function POST(req: NextRequest) {
                 isEmailVerified: user.isEmailVerified,
                 isApproved: user.isApproved,
                 approvalStatus: user.approvalStatus,
+                // Surfaced as "Member since" on the profile screen.
+                createdAt: user.createdAt,
             },
         });
     } catch (error: unknown) {

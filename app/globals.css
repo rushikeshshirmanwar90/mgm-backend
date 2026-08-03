@@ -12,6 +12,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Brand palette, kept identical to the mobile app's design tokens
+   (mgm-frontend/constants/theme.ts) so the console and the app read as one
+   product. Gives bg-brand / text-brand / border-brand-light etc. */
+@theme {
+  --color-brand: #3a78b5;
+  --color-brand-dark: #295e94;
+  --color-brand-light: #dceeff;
+  --color-brand-border: #b8d8f8;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
