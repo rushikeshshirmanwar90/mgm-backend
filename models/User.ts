@@ -18,6 +18,20 @@ export interface IUser extends Document {
     reviewedAt?: Date;
     emailOTP?: string;
     emailOTPExpiry?: Date;
+    /**
+     * Password reset gets its own code, deliberately not reusing emailOTP.
+     * Sharing one field let a reset code be redeemed at /auth/verify-email (and
+     * the reverse), and meant requesting either one silently invalidated the
+     * other.
+     */
+    passwordResetOTP?: string;
+    passwordResetOTPExpiry?: Date;
+    /** Wrong guesses against the current reset code; resets when one is issued. */
+    passwordResetAttempts: number;
+    /** Drives the resend cooldown. */
+    passwordResetLastSentAt?: Date;
+    /** Set on every password change, so tokens minted earlier can be rejected. */
+    passwordChangedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -79,6 +93,27 @@ const UserSchema = new Schema<IUser>(
             select: false,
         },
         emailOTPExpiry: {
+            type: Date,
+            select: false,
+        },
+        passwordResetOTP: {
+            type: String,
+            select: false,
+        },
+        passwordResetOTPExpiry: {
+            type: Date,
+            select: false,
+        },
+        passwordResetAttempts: {
+            type: Number,
+            default: 0,
+            select: false,
+        },
+        passwordResetLastSentAt: {
+            type: Date,
+            select: false,
+        },
+        passwordChangedAt: {
             type: Date,
             select: false,
         },

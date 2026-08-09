@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+// Side-effect import: evaluates every model module so `populate()` can resolve
+// refs like "Building" no matter which route opened the connection.
+import "@/models";
+
 const DB_URL = process.env.DB_URL;
 
 const connect = async () => {

@@ -9,10 +9,12 @@ const OTP_TTL_MS = 15 * 60 * 1000;
 const RESEND_COOLDOWN_MS = 60 * 1000;
 
 /**
- * Issues a fresh verification code.
+ * Issues a fresh verification code for an *existing* unverified account.
  *
- * The verify screen has always told users to "request a new code" but there was
- * no endpoint behind it, so an expired OTP was a dead end.
+ * New sign-ups no longer reach this: registration verifies the address inline
+ * before the account is created (see /auth/email-otp/send). This remains for
+ * accounts left unverified by the old flow, which log in and are sent to the
+ * standalone verify screen.
  */
 export async function POST(req: NextRequest) {
     try {
@@ -66,14 +68,9 @@ export async function POST(req: NextRequest) {
             console.error("[resend-otp] failed to send OTP email:", emailErr);
         }
 
-        return NextResponse.json(
-            {
-                ...genericResponse,
-                emailSent,
-                otp: process.env.NODE_ENV === "production" ? undefined : otp,
-            },
-            { status: 200 }
-        );
+        // The code is never echoed back, in any environment — it exists only in
+        // the recipient's inbox, so it has to be typed in by hand.
+        return NextResponse.json({ ...genericResponse, emailSent }, { status: 200 });
     } catch (error: unknown) {
         return errorResponse(error, "auth/resend-otp");
     }

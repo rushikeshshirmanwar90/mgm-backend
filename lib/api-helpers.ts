@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, JWTPayload, Role } from "@/lib/auth";
+import User from "@/models/User";
 
 /**
  * Result of an auth guard. Either the caller is allowed (and we hand back the
@@ -38,6 +39,52 @@ export function requireRole(req: NextRequest, ...roles: Role[]): AuthResult {
         };
     }
     return { ok: true, user: result.user };
+}
+
+/**
+ * Requires a signed-in user whose account is actually approved.
+ *
+ * Staff may now sign in while their registration is still pending, so holding a
+ * valid token no longer implies approval the way it did when login itself was
+ * the gate. Anything that creates or changes data has to ask the database
+ * instead — hence the extra round-trip. Read-only endpoints deliberately skip
+ * this: a pending user seeing their own (empty) dashboard harms nothing.
+ *
+ * Managers and admins are provisioned already approved, so they short-circuit.
+ */
+export async function requireApprovedUser(req: NextRequest): Promise<AuthResult> {
+    const result = requireUser(req);
+    if (!result.ok) return result;
+    if (result.user.role !== "staff") return result;
+
+    // isApproved is a virtual over approvalStatus, so selecting the one field
+    // is enough to read both.
+    const account = await User.findById(result.user.userId).select("approvalStatus");
+    if (!account) {
+        return {
+            ok: false,
+            response: NextResponse.json({ error: "User not found" }, { status: 404 }),
+        };
+    }
+
+    if (!account.isApproved) {
+        return {
+            ok: false,
+            response: NextResponse.json(
+                {
+                    error:
+                        account.approvalStatus === "rejected"
+                            ? "Your registration was not approved, so you cannot raise complaints. Please contact the Estate Manager's office."
+                            : "Your registration is still awaiting Estate Manager approval. You'll be able to raise complaints as soon as it is approved.",
+                    isApproved: false,
+                    approvalStatus: account.approvalStatus,
+                },
+                { status: 403 }
+            ),
+        };
+    }
+
+    return result;
 }
 
 function isDuplicateKeyError(error: unknown): boolean {

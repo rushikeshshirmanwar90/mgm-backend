@@ -6,7 +6,7 @@ import Floor from "@/models/Floor";
 import Notification from "@/models/Notification";
 import Room from "@/models/Room";
 import User from "@/models/User";
-import { errorResponse, requireUser } from "@/lib/api-helpers";
+import { errorResponse, requireApprovedUser, requireUser } from "@/lib/api-helpers";
 import { serializeComplaint, serializeComplaints } from "@/lib/complaint-access";
 
 const STATUSES = ["pending", "in_progress", "resolved", "rejected"];
@@ -63,7 +63,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         await connect();
-        const auth = requireUser(req);
+        // Approval is checked here rather than at login: pending staff can sign
+        // in and look around, but raising a complaint needs a real account.
+        const auth = await requireApprovedUser(req);
         if (!auth.ok) return auth.response;
 
         const {

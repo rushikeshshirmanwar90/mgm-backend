@@ -71,6 +71,31 @@ export function otpEmail(name: string, otp: string): MailBody {
     };
 }
 
+/**
+ * Password reset code.
+ *
+ * Kept separate from otpEmail: password resets were going out under the signup
+ * welcome template, which greeted returning users with "Welcome to MGM
+ * Maintenance Management" and told them a manager still had to approve their
+ * account — alarming, and indistinguishable from a phishing attempt.
+ */
+export function passwordResetEmail(name: string, otp: string): MailBody {
+    return {
+        subject: "MGM Maintenance - Password Reset Code",
+        html: shell(`
+            <h2>Reset your password</h2>
+            <p>Dear ${name},</p>
+            <p>Use this code to set a new password for your MGM Maintenance Portal account:</p>
+            <p style="font-size:32px;font-weight:800;letter-spacing:6px;color:#2563eb;margin:16px 0">${otp}</p>
+            <p>This code is valid for 15 minutes and can only be used once.</p>
+            <p style="color:#64748b">
+                If you didn't ask to reset your password, you can ignore this email —
+                your current password will keep working and nothing has changed.
+            </p>
+        `),
+    };
+}
+
 export function statusUpdateEmail(
     name: string,
     heading: string,

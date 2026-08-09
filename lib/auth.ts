@@ -18,6 +18,11 @@ export interface JWTPayload {
     userId: string;
     email: string;
     role: Role;
+    /**
+     * Issued-at, stamped by jwt.sign. Compared against the account's
+     * passwordChangedAt so a reset can retire tokens minted before it.
+     */
+    iat?: number;
 }
 
 export function generateToken(payload: JWTPayload): string {

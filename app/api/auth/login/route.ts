@@ -38,15 +38,18 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Staff need an explicit approval; managers and admins are provisioned
-        // directly and are approved at creation time.
-        if (user.role === "staff" && !user.isApproved) {
+        // A pending staff member is NOT turned away here. They sign in, land in
+        // a read-only app that tells them where their request stands, and can
+        // watch for the approval without re-registering or guessing. Every
+        // action that writes is gated server-side by `requireApprovedUser`, so
+        // the token this issues grants no more than looking around.
+        //
+        // Rejection is different: it's a decision, not a waiting state, and
+        // there is nothing to come back for. It stays a hard stop.
+        if (user.role === "staff" && user.approvalStatus === "rejected") {
             return NextResponse.json(
                 {
-                    error:
-                        user.approvalStatus === "rejected"
-                            ? "Your registration was not approved. Please contact the Estate Manager's office."
-                            : "Your registration is pending manager approval. You'll be notified by email once it's reviewed.",
+                    error: "Your registration was not approved. Please contact the Estate Manager's office.",
                     isApproved: false,
                     approvalStatus: user.approvalStatus,
                 },
