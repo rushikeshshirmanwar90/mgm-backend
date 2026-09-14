@@ -8,7 +8,7 @@
 
 export type Role = "staff" | "manager" | "admin";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
-export type ComplaintStatus = "pending" | "in_progress" | "resolved" | "rejected";
+export type ComplaintStatus = "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
 export type Priority = "low" | "medium" | "high" | "critical";
 
 export interface ConsoleUser {

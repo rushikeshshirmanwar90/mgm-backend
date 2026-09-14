@@ -23,7 +23,7 @@ export interface IComplaint extends Document {
     roomId?: mongoose.Types.ObjectId;
     locationType: "classroom" | "washroom" | "lab" | "office" | "library" | "corridor" | "other";
     photos: string[];
-    status: "pending" | "in_progress" | "resolved" | "rejected";
+    status: "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
     priority: "low" | "medium" | "high" | "critical";
     assignedTo?: mongoose.Types.ObjectId;
     costDetails?: ICostDetail;
@@ -97,7 +97,7 @@ const ComplaintSchema = new Schema<IComplaint>(
         },
         status: {
             type: String,
-            enum: ["pending", "in_progress", "resolved", "rejected"],
+            enum: ["pending", "on_hold", "in_progress", "resolved", "rejected"],
             default: "pending",
         },
         priority: {

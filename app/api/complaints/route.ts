@@ -9,7 +9,7 @@ import User from "@/models/User";
 import { errorResponse, requireApprovedUser, requireUser } from "@/lib/api-helpers";
 import { serializeComplaint, serializeComplaints } from "@/lib/complaint-access";
 
-const STATUSES = ["pending", "in_progress", "resolved", "rejected"];
+const STATUSES = ["pending", "on_hold", "in_progress", "resolved", "rejected"];
 const PRIORITIES = ["low", "medium", "high", "critical"];
 const LOCATION_TYPES = [
     "classroom",

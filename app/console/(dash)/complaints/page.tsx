@@ -25,11 +25,12 @@ import {
     StatusBadge,
 } from "../../ui";
 
-type StatusFilter = "all" | "pending" | "in_progress" | "resolved" | "rejected";
+type StatusFilter = "all" | "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
     { key: "all", label: "All" },
     { key: "pending", label: "Needs action" },
+    { key: "on_hold", label: "On hold" },
     { key: "in_progress", label: "In progress" },
     { key: "resolved", label: "Resolved" },
     { key: "rejected", label: "Closed" },

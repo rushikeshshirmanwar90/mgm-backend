@@ -292,10 +292,11 @@ export function Badge({
 export function StatusBadge({
     status,
 }: {
-    status: "pending" | "in_progress" | "resolved" | "rejected";
+    status: "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
 }) {
     const map = {
         pending: { tone: "warning", label: "Needs action" },
+        on_hold: { tone: "neutral", label: "On hold" },
         in_progress: { tone: "brand", label: "In progress" },
         resolved: { tone: "success", label: "Resolved" },
         rejected: { tone: "danger", label: "Closed" },

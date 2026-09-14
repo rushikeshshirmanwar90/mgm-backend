@@ -7,7 +7,7 @@ import { errorResponse, requireRole, requireUser } from "@/lib/api-helpers";
 import { serializeComplaint } from "@/lib/complaint-access";
 import { queueMail, statusUpdateEmail } from "@/lib/send-mail";
 
-const STATUSES = ["pending", "in_progress", "resolved", "rejected"] as const;
+const STATUSES = ["pending", "on_hold", "in_progress", "resolved", "rejected"] as const;
 const PRIORITIES = ["low", "medium", "high", "critical"] as const;
 
 type Status = (typeof STATUSES)[number];
@@ -161,6 +161,9 @@ async function notifyReporter(complaint: ComplaintLike, status: Status) {
     } else if (status === "in_progress") {
         title = "Work Started 🛠️";
         message = `The maintenance team has started working on your complaint "${complaint.title}".`;
+    } else if (status === "on_hold") {
+        title = "Complaint On Hold ⏸️";
+        message = `Your complaint "${complaint.title}" has been reviewed and put on hold for now. The Estate Manager will pick it up once resources are available.`;
     } else if (status === "rejected") {
         title = "Complaint Closed";
         message = `Your complaint "${complaint.title}" was reviewed and closed without repair work. Please contact the Estate Manager's office if the issue persists.`;
