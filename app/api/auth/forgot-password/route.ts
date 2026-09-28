@@ -49,9 +49,19 @@ export async function POST(req: NextRequest) {
             "+passwordResetOTP +passwordResetOTPExpiry +passwordResetAttempts +passwordResetLastSentAt"
         );
 
-        // No account: claim success and stop. The caller cannot tell this apart
-        // from the happy path, which is the point.
+        // In production, keep generic response so email addresses cannot be enumerated.
+        // In development, warn the developer so they don't wait for a ghost email.
         if (!user) {
+            console.warn(`[forgot-password] Account not found for email: ${email}`);
+            if (process.env.NODE_ENV !== "production") {
+                return NextResponse.json(
+                    {
+                        error: `No account exists with email "${email}". Please enter a registered email.`,
+                        emailSent: false,
+                    },
+                    { status: 404 }
+                );
+            }
             return NextResponse.json({ ...genericResponse, emailSent: true }, { status: 200 });
         }
 
@@ -79,26 +89,33 @@ export async function POST(req: NextRequest) {
         user.passwordResetLastSentAt = new Date();
         await user.save();
 
+        console.log("\n=======================================================");
+        console.log(`🔑 [PASSWORD RESET OTP]`);
+        console.log(`   User: ${user.name} (${user.email})`);
+        console.log(`   OTP Code: ${otp}`);
+        console.log("=======================================================\n");
+
+        let emailSent = true;
         try {
             await sendMailNow({ to: user.email, ...passwordResetEmail(user.name, otp) });
         } catch (emailErr) {
-            console.error("[forgot-password] failed to send reset email:", emailErr);
+            console.error("[forgot-password] failed to send reset email via SMTP:", emailErr);
+            emailSent = false;
 
-            // Returning 200-with-success here is what made this feature look
-            // broken: the app moved on to "enter the code" for a mail that never
-            // left the building. Report the failure, and clear the cooldown so
-            // the retry isn't also blocked.
-            user.passwordResetLastSentAt = undefined;
-            await user.save();
+            // In production, if email genuinely failed to go out, report failure and clear cooldown
+            if (process.env.NODE_ENV === "production") {
+                user.passwordResetLastSentAt = undefined;
+                await user.save();
 
-            return NextResponse.json(
-                {
-                    ...genericResponse,
-                    emailSent: false,
-                    error: "We could not send the reset email just now. Please check the address and try again in a moment.",
-                },
-                { status: 200 }
-            );
+                return NextResponse.json(
+                    {
+                        ...genericResponse,
+                        emailSent: false,
+                        error: "We could not send the reset email just now. Please check the address and try again in a moment.",
+                    },
+                    { status: 200 }
+                );
+            }
         }
 
         return NextResponse.json(
@@ -107,6 +124,7 @@ export async function POST(req: NextRequest) {
                 emailSent: true,
                 expiresInSeconds: Math.floor(OTP_TTL_MS / 1000),
                 resendInSeconds: Math.floor(RESEND_COOLDOWN_MS / 1000),
+                ...(process.env.NODE_ENV !== "production" ? { devOtp: otp } : {}),
             },
             { status: 200 }
         );

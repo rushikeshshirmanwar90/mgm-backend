@@ -91,6 +91,12 @@ export async function POST(req: NextRequest) {
             { upsert: true, new: true }
         );
 
+        console.log("\n=======================================================");
+        console.log(`🔑 [EMAIL SIGNUP VERIFICATION OTP]`);
+        console.log(`   Email: ${email} (${name})`);
+        console.log(`   OTP Code: ${otp}`);
+        console.log("=======================================================\n");
+
         try {
             await sendMailNow({ to: email, ...otpEmail(name, otp) });
         } catch (emailErr) {
@@ -98,12 +104,16 @@ export async function POST(req: NextRequest) {
             // The send failed, so the cooldown shouldn't punish the retry. Clear
             // lastSentAt and let them try again immediately.
             await EmailVerification.updateOne({ email }, { $unset: { lastSentAt: "" } });
-            return NextResponse.json(
-                {
-                    error: "We could not send the verification email. Please check the address and try again, or contact the administrator.",
-                },
-                { status: 502 }
-            );
+            
+            // In production, return 502 error. In dev, allow proceeding with the logged OTP.
+            if (process.env.NODE_ENV === "production") {
+                return NextResponse.json(
+                    {
+                        error: "We could not send the verification email. Please check the address and try again, or contact the administrator.",
+                    },
+                    { status: 502 }
+                );
+            }
         }
 
         return NextResponse.json(
@@ -112,6 +122,7 @@ export async function POST(req: NextRequest) {
                 email,
                 expiresInSeconds: Math.floor(OTP_TTL_MS / 1000),
                 resendInSeconds: Math.floor(RESEND_COOLDOWN_MS / 1000),
+                ...(process.env.NODE_ENV !== "production" ? { devOtp: otp } : {}),
             },
             { status: 200 }
         );
