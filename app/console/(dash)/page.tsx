@@ -85,9 +85,12 @@ export default function OverviewPage() {
             total: labor + material + other,
             costed,
             pending: count("pending"),
+            awaiting: count("awaiting_approval"),
+            approved: count("approved"),
             inProgress: count("in_progress"),
+            workDone: count("work_done"),
             resolved: count("resolved"),
-            rejected: count("rejected"),
+            onHold: count("on_hold"),
         };
     }, [complaints]);
 
@@ -169,13 +172,24 @@ export default function OverviewPage() {
             <SectionTitle>Complaint status</SectionTitle>
             <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <StatTile
-                    label="Needs action"
+                    label="Needs estimate"
                     value={stats.pending}
                     tone={stats.pending > 0 ? "warning" : "neutral"}
                 />
+                <StatTile
+                    label="Awaiting director"
+                    value={stats.awaiting}
+                    tone={stats.awaiting > 0 ? "warning" : "neutral"}
+                />
+                <StatTile label="Approved" value={stats.approved} tone="brand" />
                 <StatTile label="In progress" value={stats.inProgress} tone="brand" />
+                <StatTile
+                    label="Work done"
+                    value={stats.workDone}
+                    tone={stats.workDone > 0 ? "warning" : "neutral"}
+                />
                 <StatTile label="Resolved" value={stats.resolved} tone="success" />
-                <StatTile label="Closed" value={stats.rejected} />
+                <StatTile label="On hold" value={stats.onHold} />
             </div>
 
             <SectionTitle

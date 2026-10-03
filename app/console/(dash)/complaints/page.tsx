@@ -10,6 +10,7 @@ import {
     type BuildingsResponse,
     type Complaint,
     type ComplaintsResponse,
+    type ComplaintStatus,
 } from "@/lib/console/types";
 import {
     Badge,
@@ -25,15 +26,17 @@ import {
     StatusBadge,
 } from "../../ui";
 
-type StatusFilter = "all" | "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
+type StatusFilter = "all" | ComplaintStatus;
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
     { key: "all", label: "All" },
-    { key: "pending", label: "Needs action" },
-    { key: "on_hold", label: "On hold" },
+    { key: "pending", label: "Raised" },
+    { key: "awaiting_approval", label: "Awaiting director" },
+    { key: "approved", label: "Approved" },
     { key: "in_progress", label: "In progress" },
+    { key: "work_done", label: "Work done" },
     { key: "resolved", label: "Resolved" },
-    { key: "rejected", label: "Closed" },
+    { key: "on_hold", label: "On hold" },
 ];
 
 const PRIORITY_TONE = {
@@ -242,6 +245,13 @@ export default function ComplaintsPage() {
                                             <p className="font-bold text-slate-900">
                                                 {c.title}
                                             </p>
+                                            {c.category && (
+                                                <p className="mt-0.5 text-xs font-semibold capitalize text-brand">
+                                                    {c.category === "other" && c.categoryOther
+                                                        ? c.categoryOther
+                                                        : c.category.replace(/_/g, " ")}
+                                                </p>
+                                            )}
                                             <p className="mt-0.5 line-clamp-2 text-sm text-slate-500">
                                                 {c.description}
                                             </p>
@@ -271,11 +281,18 @@ export default function ComplaintsPage() {
 
                                         {c.costDetails && c.costDetails.totalCost > 0 ? (
                                             <span className="font-bold text-green-700">
-                                                {inr(c.costDetails.totalCost)}
+                                                Spent {inr(c.costDetails.totalCost)}
+                                                {c.estimatedBudget
+                                                    ? ` of ${inr(c.estimatedBudget)} estimated`
+                                                    : ""}
+                                            </span>
+                                        ) : c.estimatedBudget ? (
+                                            <span className="font-semibold text-slate-700">
+                                                Estimate {inr(c.estimatedBudget)}
                                             </span>
                                         ) : (
                                             <span className="text-slate-400">
-                                                No cost recorded
+                                                No estimate yet
                                             </span>
                                         )}
                                     </div>
@@ -286,6 +303,22 @@ export default function ComplaintsPage() {
                                                 Closed without repair:
                                             </span>{" "}
                                             {c.rejectionReason}
+                                        </p>
+                                    )}
+
+                                    {c.status === "pending" && c.returnReason && (
+                                        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                            <span className="font-bold">
+                                                Sent back by the Director:
+                                            </span>{" "}
+                                            {c.returnReason}
+                                        </p>
+                                    )}
+
+                                    {c.status === "on_hold" && c.holdReason && (
+                                        <p className="mt-3 rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-700">
+                                            <span className="font-bold">On hold:</span>{" "}
+                                            {c.holdReason}
                                         </p>
                                     )}
                                 </Card>

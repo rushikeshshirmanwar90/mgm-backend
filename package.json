@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "set-console-password": "node --env-file=.env scripts/set-console-password.mjs"
+    "set-console-password": "node --env-file=.env scripts/set-console-password.mjs",
+    "create-account": "node --env-file=.env scripts/create-account.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

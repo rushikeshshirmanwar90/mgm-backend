@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
 
 const JWT_SECRET = process.env.JWT_SECRET || "mgm-dev-only-secret";
 
-export type Role = "staff" | "manager" | "admin";
+export type Role = "staff" | "manager" | "director" | "admin";
 
 export interface JWTPayload {
     userId: string;

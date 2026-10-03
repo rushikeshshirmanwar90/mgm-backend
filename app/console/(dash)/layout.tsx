@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../AuthProvider";
 import { Loading, icons } from "../ui";
+import type { Role } from "@/lib/console/types";
 
 const NAV = [
     { href: "/console", label: "Overview", icon: icons.grid },
@@ -12,6 +13,9 @@ const NAV = [
     { href: "/console/campus", label: "Campus", icon: icons.building },
     { href: "/console/people", label: "People", icon: icons.users },
 ] as const;
+
+/** Directors approve from the mobile app; the console is for running the estate. */
+const CONSOLE_ROLES: Role[] = ["manager", "admin"];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, loading, signOut } = useAuth();
@@ -22,11 +26,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // a UI that would 403 on every request anyway.
     useEffect(() => {
         if (loading) return;
-        if (!user || user.role === "staff") router.replace("/console/login");
+        if (!user || !CONSOLE_ROLES.includes(user.role)) router.replace("/console/login");
     }, [loading, user, router]);
 
     if (loading) return <Loading label="Checking your session" />;
-    if (!user || user.role === "staff") return null;
+    if (!user || !CONSOLE_ROLES.includes(user.role)) return null;
 
     const handleSignOut = () => {
         signOut();

@@ -4,7 +4,7 @@ import connect from "@/lib/db";
 import User from "@/models/User";
 import { errorResponse, requireRole } from "@/lib/api-helpers";
 
-const ROLES = ["staff", "manager", "admin"];
+const ROLES = ["staff", "manager", "director", "admin"];
 
 export async function GET(req: NextRequest) {
     try {

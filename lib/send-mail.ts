@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { STATUS_LABELS, type ComplaintStatus } from "@/lib/complaint-workflow";
 import { transporter } from "@/lib/transpoter";
 
 export interface MailOptions {
@@ -112,7 +113,7 @@ export function statusUpdateEmail(
             <p style="margin-top:20px"><strong>Complaint details</strong></p>
             <ul>
                 <li><strong>Title:</strong> ${complaintTitle}</li>
-                <li><strong>Status:</strong> ${status.replace("_", " ").toUpperCase()}</li>
+                <li><strong>Status:</strong> ${(STATUS_LABELS[status as ComplaintStatus] ?? status.replace(/_/g, " ")).toUpperCase()}</li>
             </ul>
             <p>Thank you for helping keep our campus infrastructure maintained.</p>
         `),

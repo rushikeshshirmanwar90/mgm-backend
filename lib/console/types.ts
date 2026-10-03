@@ -6,9 +6,17 @@
  * never has to reason about model internals.
  */
 
-export type Role = "staff" | "manager" | "admin";
+export type Role = "staff" | "manager" | "director" | "admin";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
-export type ComplaintStatus = "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
+export type ComplaintStatus =
+    | "pending"
+    | "awaiting_approval"
+    | "approved"
+    | "in_progress"
+    | "work_done"
+    | "resolved"
+    | "on_hold"
+    | "rejected";
 export type Priority = "low" | "medium" | "high" | "critical";
 
 export interface ConsoleUser {
@@ -50,6 +58,8 @@ export interface Room {
 }
 
 export interface CostDetail {
+    items?: { key: string; amount: number }[];
+    miscDescription?: string;
     laborCost: number;
     materialCost: number;
     otherCost: number;
@@ -70,9 +80,17 @@ export interface Complaint {
     photos: string[];
     status: ComplaintStatus;
     priority: Priority;
+    category?: string;
+    categoryOther?: string;
+    estimatedBudget?: number;
+    estimateNotes?: string;
+    approvedBy?: ConsoleUser | string;
+    approvedAt?: string;
+    returnReason?: string;
     costDetails?: CostDetail;
     resolvedAt?: string;
     rejectionReason?: string;
+    holdReason?: string;
     createdAt: string;
     updatedAt: string;
 }

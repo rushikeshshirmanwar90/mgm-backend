@@ -21,19 +21,21 @@ import {
     icons,
 } from "../../ui";
 
-type FilterKey = "all" | "pending" | "staff" | "manager" | "admin" | "rejected";
+type FilterKey = "all" | "pending" | "staff" | "manager" | "director" | "admin" | "rejected";
 
 const FILTERS: { key: FilterKey; label: string; query: string }[] = [
     { key: "all", label: "Everyone", query: "" },
     { key: "pending", label: "Awaiting approval", query: "?status=pending" },
     { key: "staff", label: "Staff", query: "?role=staff" },
     { key: "manager", label: "Managers", query: "?role=manager" },
+    { key: "director", label: "Directors", query: "?role=director" },
     { key: "admin", label: "Admins", query: "?role=admin" },
     { key: "rejected", label: "Rejected", query: "?status=rejected" },
 ];
 
-const ROLE_TONE: Record<Role, "brand" | "warning" | "success"> = {
+const ROLE_TONE: Record<Role, "brand" | "warning" | "success" | "danger"> = {
     admin: "brand",
+    director: "danger",
     manager: "warning",
     staff: "success",
 };
@@ -41,7 +43,9 @@ const ROLE_TONE: Record<Role, "brand" | "warning" | "success"> = {
 const ROLE_BLURB: Record<Role, string> = {
     staff: "Reports maintenance issues from the mobile app. Needs approval before first sign-in — unless created here.",
     manager:
-        "Reviews complaints, records repair costs and approves new staff registrations.",
+        "Estimates budgets, runs the repair work, records what it cost and approves new staff registrations.",
+    director:
+        "Approves or sends back each complaint's estimated budget from the mobile app. Cannot open this console.",
     admin: "Full access, including creating other managers and admins and deleting buildings.",
 };
 
@@ -474,6 +478,7 @@ export default function PeoplePage() {
                     onChange={(v) => setRole(v as Role)}
                     options={[
                         { value: "manager", label: "Manager" },
+                        { value: "director", label: "Director" },
                         { value: "admin", label: "Admin" },
                         { value: "staff", label: "Staff" },
                     ]}

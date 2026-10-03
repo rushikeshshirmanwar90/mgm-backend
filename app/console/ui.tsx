@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type { ComplaintStatus } from "@/lib/console/types";
 
 /**
  * Small presentational kit for the console.
@@ -292,13 +293,16 @@ export function Badge({
 export function StatusBadge({
     status,
 }: {
-    status: "pending" | "on_hold" | "in_progress" | "resolved" | "rejected";
+    status: ComplaintStatus;
 }) {
     const map = {
-        pending: { tone: "warning", label: "Needs action" },
-        on_hold: { tone: "neutral", label: "On hold" },
+        pending: { tone: "warning", label: "Raised" },
+        awaiting_approval: { tone: "warning", label: "Awaiting director" },
+        approved: { tone: "brand", label: "Approved" },
         in_progress: { tone: "brand", label: "In progress" },
+        work_done: { tone: "success", label: "Work done" },
         resolved: { tone: "success", label: "Resolved" },
+        on_hold: { tone: "neutral", label: "On hold" },
         rejected: { tone: "danger", label: "Closed" },
     } as const;
 

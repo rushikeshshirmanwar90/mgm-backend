@@ -7,9 +7,12 @@ import Notification from "@/models/Notification";
 import Room from "@/models/Room";
 import User from "@/models/User";
 import { errorResponse, requireApprovedUser, requireUser } from "@/lib/api-helpers";
-import { serializeComplaint, serializeComplaints } from "@/lib/complaint-access";
-
-const STATUSES = ["pending", "on_hold", "in_progress", "resolved", "rejected"];
+import {
+    populateComplaint,
+    serializeComplaint,
+    serializeComplaints,
+} from "@/lib/complaint-access";
+import { STATUSES } from "@/lib/complaint-workflow";
 const PRIORITIES = ["low", "medium", "high", "critical"];
 const LOCATION_TYPES = [
     "classroom",
@@ -39,18 +42,15 @@ export async function GET(req: NextRequest) {
             filter.raisedBy = auth.user.userId;
         }
 
-        if (status && STATUSES.includes(status)) filter.status = status;
+        if (status && (STATUSES as readonly string[]).includes(status)) filter.status = status;
         if (priority && PRIORITIES.includes(priority)) filter.priority = priority;
         if (buildingId && mongoose.Types.ObjectId.isValid(buildingId)) {
             filter.buildingId = buildingId;
         }
 
-        const complaints = await Complaint.find(filter)
-            .populate("raisedBy", "name email department phone")
-            .populate("buildingId", "name code")
-            .populate("floorId", "name prefix floorNumber")
-            .populate("roomId", "roomNumber roomType name")
-            .sort({ createdAt: -1 });
+        const complaints = await populateComplaint(Complaint.find(filter)).sort({
+            createdAt: -1,
+        });
 
         return NextResponse.json({
             complaints: serializeComplaints(complaints, auth.user.role),

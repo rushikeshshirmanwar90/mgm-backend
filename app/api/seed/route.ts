@@ -53,6 +53,13 @@ export async function POST(req: NextRequest) {
                 department: "Maintenance & Infrastructure",
             },
             {
+                email: "director@mgm.edu",
+                password: "director123",
+                name: "Campus Director",
+                role: "director" as const,
+                department: "Administration",
+            },
+            {
                 email: "staff@mgm.edu",
                 password: "staff123",
                 name: "John Staff",

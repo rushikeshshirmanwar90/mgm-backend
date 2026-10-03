@@ -31,7 +31,7 @@ export default function ConsoleLoginPage() {
 
     // Already signed in (e.g. arrived here via the browser back button).
     useEffect(() => {
-        if (!loading && user && user.role !== "staff") {
+        if (!loading && user && (user.role === "manager" || user.role === "admin")) {
             router.replace("/console");
         }
     }, [loading, user, router]);
@@ -45,9 +45,9 @@ export default function ConsoleLoginPage() {
         try {
             const signedIn = await signIn(CONSOLE_ACCOUNT_EMAIL, password);
 
-            if (signedIn.role === "staff") {
+            if (signedIn.role !== "manager" && signedIn.role !== "admin") {
                 setError(
-                    `${CONSOLE_ACCOUNT_EMAIL} is a staff account, so it cannot open the console.`
+                    `${CONSOLE_ACCOUNT_EMAIL} is a ${signedIn.role} account, so it cannot open the console.`
                 );
                 setSubmitting(false);
                 return;
@@ -74,7 +74,7 @@ export default function ConsoleLoginPage() {
     if (loading) return <Loading label="Checking your session" />;
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-6">
+        <div className="relative flex min-h-screen items-center justify-center p-6 pb-16">
             <div className="w-full max-w-sm">
                 <div className="mb-8 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-2xl font-bold text-white">
@@ -127,6 +127,18 @@ export default function ConsoleLoginPage() {
                     . Staff report issues through the MGM mobile app.
                 </p>
             </div>
+
+            <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-slate-400">
+                Designed and developed by{" "}
+                <a
+                    href="https://exponentor.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-brand hover:underline"
+                >
+                    The Exponentor
+                </a>
+            </p>
         </div>
     );
 }

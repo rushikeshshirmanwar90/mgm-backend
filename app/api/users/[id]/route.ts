@@ -6,7 +6,7 @@ import Complaint from "@/models/Complaint";
 import Notification from "@/models/Notification";
 import { errorResponse, isValidObjectId, requireRole } from "@/lib/api-helpers";
 
-const ROLES = ["staff", "manager", "admin"];
+const ROLES = ["staff", "manager", "director", "admin"];
 
 /** Reads a single account. Managers and admins both use this. */
 export async function GET(
